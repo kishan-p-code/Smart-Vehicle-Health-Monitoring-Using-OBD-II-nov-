@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Live Interactive Telemetry Charts | OBD-II & ML{% endblock %}
+
+{% block content %}
+<div class="page-top-bar">
+  <div class="page-title-group">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      Live Telemetry & Diagnostics Charts
+    </h2>
+    <p>High-resolution streaming time-series across powertrain, cooling, electrical, and ML anomaly indices.</p>
+  </div>
+
+  <!-- Interactive Chart Streaming Controls -->
+  <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-card); padding: 0.35rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.8rem;">
+      <span style="color: var(--text-muted);">Window:</span>
+      <select id="chart-window-select" style="background: none; border: none; color: var(--accent-cyan); font-weight: 600; cursor: pointer;">
+        <option value="20" style="background: #0d1527;">Last 20 Points</option>
+        <option value="40" selected style="background: #0d1527;">Last 40 Points</option>
+        <option value="60" style="background: #0d1527;">Last 60 Points</option>
+      </select>
+    </div>
+
+    <button id="btn-pause-charts" class="btn btn-secondary btn-sm" onclick="toggleChartStream()">
+      <svg id="pause-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+      <span id="pause-text">Pause Stream</span>
+    </button>
+
+    <button class="btn btn-secondary btn-sm" onclick="resetChartHistory()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+      Clear Buffer
+    </button>
+  </div>
+</div>
+
+<!-- Charts Grid -->
+<div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  
+  <!-- Chart 1: Speed & RPM Dual Axis -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Speed (km/h) vs Engine RPM (Dual Axis)
+      </h3>
+      <div style="display: flex; gap: 1rem; font-size: 0.78rem;">
+        <span style="color: #00d2ff; font-weight: 600;">● Speed (Left Axis)</span>
+        <span style="color: #f59e0b; font-weight: 600;">● RPM (Right Axis)</span>
+      </div>
+    </div>
+    <div style="position: relative; height: 320px; width: 100%;">
+      <canvas id="chart-speed-rpm"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- 2 Column Chart Row -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  
+  <!-- Chart 2: Coolant Temperature -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+        </svg>
+        Engine Coolant Temperature (°C)
+      </h3>
+      <span style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">Threshold: 108°C Critical</span>
+    </div>
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="chart-engine-temp"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart 3: Battery & Alternator Voltage -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M6 3v4M18 3v4"></path>
+        </svg>
+        Battery & Alternator Voltage (V)
+      </h3>
+      <span style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Normal: 13.5 - 14.8V</span>
+    </div>
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="chart-battery-volt"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- 2 Column Chart Row (Fuel & ML Anomaly Score) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+  
+  <!-- Chart 4: Fuel Level & Engine Load -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18"></path>
+          <path d="M15 10h2a2 2 0 0 1 2 2v6"></path>
+        </svg>
+        Fuel Level (%) vs Calculated Engine Load (%)
+      </h3>
+      <div style="display: flex; gap: 0.85rem; font-size: 0.78rem;">
+        <span style="color: #38bdf8; font-weight: 600;">● Fuel Tank</span>
+        <span style="color: #c084fc; font-weight: 600;">● Engine Load</span>
+      </div>
+    </div>
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="chart-fuel-load"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart 5: ML Isolation Forest Anomaly Index -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        Machine Learning Anomaly Index (Isolation Forest)
+      </h3>
+      <span style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">Anomaly Trigger &gt; 58%</span>
+    </div>
+    <div style="position: relative; height: 260px; width: 100%;">
+      <canvas id="chart-ml-anomaly"></canvas>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

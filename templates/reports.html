@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicle History Reports & CSV Export | OBD-II{% endblock %}
+
+{% block content %}
+<div class="page-top-bar">
+  <div class="page-title-group">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      Telemetry History & Vehicle Reports
+    </h2>
+    <p>Persistent SQLite telemetry audit log, anomaly classifications, diagnostic events, and full CSV dataset export.</p>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+    <a href="/api/telemetry/export-csv" class="btn btn-primary" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      Export CSV Report
+    </a>
+  </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.15rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    
+    <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+        Filter Status:
+      </div>
+      <div style="display: flex; gap: 0.35rem;">
+        <button class="btn btn-secondary btn-sm active-filter" id="filter-all" onclick="applyStatusFilter('ALL')">All</button>
+        <button class="btn btn-secondary btn-sm" id="filter-healthy" onclick="applyStatusFilter('HEALTHY')">Healthy</button>
+        <button class="btn btn-secondary btn-sm" id="filter-warning" onclick="applyStatusFilter('WARNING')">Warning</button>
+        <button class="btn btn-secondary btn-sm" id="filter-critical" onclick="applyStatusFilter('CRITICAL')">Critical</button>
+      </div>
+
+      <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--text-main); cursor: pointer; margin-left: 0.5rem;">
+        <input type="checkbox" id="chk-anomalies-only" onchange="toggleAnomaliesOnly()" style="accent-color: var(--accent-cyan); width: 16px; height: 16px;">
+        <span>Anomalies Only</span>
+      </label>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Rows per page:</span>
+      <select id="reports-per-page" onchange="changePerPage(this.value)" style="background: var(--bg-card-secondary); border: 1px solid var(--border-subtle); color: #fff; padding: 0.35rem 0.65rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="loadTelemetryRecords()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- History Table Card -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+      OBD-II Sensor Telemetry Logbook
+    </h3>
+    <span id="reports-count-label" style="font-size: 0.8rem; color: var(--text-muted);">Loading logs...</span>
+  </div>
+
+  <div class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Timestamp</th>
+          <th>Speed</th>
+          <th>RPM</th>
+          <th>Coolant Temp</th>
+          <th>Battery</th>
+          <th>Fuel</th>
+          <th>Engine Load</th>
+          <th>ML Score</th>
+          <th>Status</th>
+          <th>Diagnostic Reason</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody id="telemetry-logs-tbody">
+        <tr>
+          <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+            Loading vehicle records...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-wrapper">
+    <div id="pagination-info" style="font-size: 0.82rem; color: var(--text-muted);">
+      Showing page 1
+    </div>
+    <div class="pagination-controls">
+      <button id="btn-page-prev" class="page-btn" onclick="goToPage(currentPage - 1)">Previous</button>
+      <span id="page-indicator" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">1 / 1</span>
+      <button id="btn-page-next" class="page-btn" onclick="goToPage(currentPage + 1)">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- Standard Diagnostic Trouble Code (DTC) Reference Section -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      Automotive Diagnostic Trouble Code (DTC) Master Reference
+    </h3>
+    <span style="font-size: 0.8rem; color: var(--text-muted);">SAE J2012 Standard</span>
+  </div>
+
+  <div class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>DTC</th>
+          <th>Subsystem</th>
+          <th>Severity</th>
+          <th>Description</th>
+          <th>Potential Causes</th>
+          <th>Recommended Fix</th>
+        </tr>
+      </thead>
+      <tbody id="dtc-master-tbody">
+        <!-- Dynamically loaded -->
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Smart Vehicle Health Monitoring and Predictive Maintenance using OBD-II telemetry and Isolation Forest Machine Learning.">
+  <title>{% block title %}Smart Vehicle Health Monitoring | OBD-II & ML{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for High Performance Real-Time Automotive Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      
+      <!-- Brand & Automotive Telemetry Identity -->
+      <a href="/" class="brand-wrapper" title="Smart Vehicle Health Monitoring">
+        <div class="brand-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-title-group">
+          <h1>Apex HealthSentinel</h1>
+          <span class="sub-title">OBD-II • ML Diagnostic Core</span>
+        </div>
+      </a>
+
+      <!-- Main Navigation Menu -->
+      <nav aria-label="Main Navigation">
+        <ul class="nav-menu">
+          <li>
+            <a href="/" class="nav-link {% if active_page == 'home' %}active{% endif %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="9"></rect>
+                <rect x="14" y="3" width="7" height="5"></rect>
+                <rect x="14" y="12" width="7" height="9"></rect>
+                <rect x="3" y="16" width="7" height="5"></rect>
+              </svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="/live-charts" class="nav-link {% if active_page == 'charts' %}active{% endif %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <span>Live Charts</span>
+            </a>
+          </li>
+          <li>
+            <a href="/predictive-maintenance" class="nav-link {% if active_page == 'maintenance' %}active{% endif %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>Predictive ML</span>
+            </a>
+          </li>
+          <li>
+            <a href="/reports" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span>Reports</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Live Vehicle Status & Simulator Control Header Actions -->
+      <div class="header-actions">
+        <!-- Live Health Badge -->
+        <div id="nav-health-badge" class="health-status-badge">
+          <span class="status-dot"></span>
+          <span id="nav-health-text">HEALTHY</span>
+        </div>
+
+        <!-- OBD-II Stream Source Indicator -->
+        <div class="sim-source-tag" title="Connected to Virtual OBD-II Telemetry Engine (Ready for ELM327)">
+          <span class="source-dot"></span>
+          <span id="nav-stream-label">SIMULATED STREAM</span>
+        </div>
+
+        <!-- DTC Quick Lookup Button -->
+        <button id="btn-dtc-modal" class="btn btn-secondary btn-sm" title="Lookup Diagnostic Trouble Code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>DTC Lookup</span>
+        </button>
+
+        <!-- Quick Fault Injector Trigger Modal -->
+        <button id="btn-quick-fault" class="btn btn-primary btn-sm" title="Test fault simulation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+          <span>Inject Fault</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="main-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <strong>Apex HealthSentinel</strong> &copy; 2026. Smart Vehicle Health Monitoring System Using OBD-II & Isolation Forest ML.
+      </div>
+      <div>
+        Vehicle: <strong>Apex CyberSentinel GT (2024)</strong> • CAN Bus: <strong>ISO 15765-4 (500k)</strong> • Backend: <strong>Python Flask + SQLite</strong>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Fault Injector Modal -->
+  <div id="fault-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Interactive OBD-II Fault Injector
+        </h3>
+        <button class="modal-close-btn" onclick="closeFaultModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem;">
+          Trigger synthetic automotive anomalies in real-time to test the <strong>Isolation Forest Machine Learning engine</strong>, predictive maintenance alerts, and dashboard warning indicators.
+        </p>
+
+        <div class="fault-buttons-grid">
+          <button class="fault-btn" onclick="triggerSimFault('OVERHEAT')">
+            🔥 <div><strong>Engine Overheat</strong><br><small style="color:var(--text-muted)">Coolant > 114°C (P0217)</small></div>
+          </button>
+          <button class="fault-btn" onclick="triggerSimFault('BATTERY_FAIL')">
+            ⚡ <div><strong>Alternator Drop</strong><br><small style="color:var(--text-muted)">Voltage < 11.4V (P0562)</small></div>
+          </button>
+          <button class="fault-btn" onclick="triggerSimFault('MISFIRE')">
+            ⚙️ <div><strong>Cylinder Misfire</strong><br><small style="color:var(--text-muted)">Erratic RPM (P0300)</small></div>
+          </button>
+          <button class="fault-btn" onclick="triggerSimFault('FUEL_PRESSURE_DROP')">
+            ⛽ <div><strong>Fuel Rail Drop</strong><br><small style="color:var(--text-muted)">Pressure < 170 kPa (P0171)</small></div>
+          </button>
+          <button class="fault-btn" onclick="triggerSimFault('TRANSMISSION_SLIP')">
+            ⚠️ <div><strong>Transmission Slip</strong><br><small style="color:var(--text-muted)">High RPM / Low Speed</small></div>
+          </button>
+          <button class="fault-btn" onclick="triggerSimFault('LOW_FUEL')">
+            ⛽ <div><strong>Low Fuel Reserve</strong><br><small style="color:var(--text-muted)">Fuel Level &lt; 5%</small></div>
+          </button>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <button class="fault-btn reset-btn" onclick="resetSimFault()" style="width: 100%;">
+            🟢 <strong>Restore Normal Drive Cycle (Clear Anomalies)</strong>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DTC Code Lookup Modal -->
+  <div id="dtc-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          OBD-II Diagnostic Trouble Code (DTC) Search
+        </h3>
+        <button class="modal-close-btn" onclick="closeDtcModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+          <input type="text" id="dtc-search-input" placeholder="e.g. P0217, P0562, P0300..." 
+                 style="flex: 1; padding: 0.6rem 0.85rem; background: var(--bg-card-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: #fff; font-family: monospace; font-size: 1rem;">
+          <button class="btn btn-primary" onclick="searchDTC()">Lookup</button>
+        </div>
+
+        <div id="dtc-search-result" style="display: none; background: rgba(30, 58, 102, 0.25); border: 1px solid var(--border-accent); border-radius: var(--radius-sm); padding: 1rem;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div style="margin-top: 1.25rem;">
+          <h4 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Common Monitored DTC Codes:</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <span class="table-badge badge-critical" style="cursor: pointer;" onclick="quickFillDtc('P0217')">P0217 - Engine Overtemperature</span>
+            <span class="table-badge badge-warning" style="cursor: pointer;" onclick="quickFillDtc('P0117')">P0117 - Coolant Temp Sensor Low</span>
+            <span class="table-badge badge-warning" style="cursor: pointer;" onclick="quickFillDtc('P0562')">P0562 - System Voltage Low</span>
+            <span class="table-badge badge-critical" style="cursor: pointer;" onclick="quickFillDtc('P0300')">P0300 - Random Misfire</span>
+            <span class="table-badge badge-warning" style="cursor: pointer;" onclick="quickFillDtc('P0171')">P0171 - System Too Lean</span>
+            <span class="table-badge badge-critical" style="cursor: pointer;" onclick="quickFillDtc('P0730')">P0730 - Transmission Slip</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Global Frontend JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
