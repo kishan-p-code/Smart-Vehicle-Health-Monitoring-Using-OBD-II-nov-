@@ -1,0 +1,38 @@
+[33mcommit 375cbe71adcead78a16888fd2292f9261f2e1803[m
+Author: kishan-p-code <kishanprajpati154@mail.com>
+Date:   Mon Nov 2 00:29:07 2026 +0530
+
+    add file
+
+ Dataset/Driver_Behaviour.csv              |  8262 [32m++++[m
+ Dataset/Multi_Vehicle_Data.csv            | 60440 [32m++++++++++++++++++++++++++++[m
+ Dataset/Vehicle_Telematics.csv            |  1744 [32m+[m
+ __pycache__/app.cpython-313.pyc           |   Bin [31m0[m -> [32m12849[m bytes
+ __pycache__/config.cpython-313.pyc        |   Bin [31m0[m -> [32m1997[m bytes
+ __pycache__/database.cpython-313.pyc      |   Bin [31m0[m -> [32m20390[m bytes
+ __pycache__/ml_engine.cpython-313.pyc     |   Bin [31m0[m -> [32m23281[m bytes
+ __pycache__/obd_hardware.cpython-313.pyc  |   Bin [31m0[m -> [32m11019[m bytes
+ __pycache__/obd_simulator.cpython-313.pyc |   Bin [31m0[m -> [32m10469[m bytes
+ app.py                                    |   240 [32m+[m
+ config.py                                 |    43 [32m+[m
+ database.py                               |   389 [32m+[m
+ ml_engine.py                              |   407 [32m+[m
+ ml_models/baseline_stats.pkl              |   Bin [31m0[m -> [32m583[m bytes
+ ml_models/isolation_forest.pkl            |   Bin [31m0[m -> [32m486059[m bytes
+ obd_hardware.py                           |   172 [32m+[m
+ obd_simulator.py                          |   227 [32m+[m
+ requirements.txt                          |     4 [32m+[m
+ static/css/style.css                      |  1135 [32m+[m
+ static/js/charts.js                       |   371 [32m+[m
+ static/js/dashboard.js                    |   290 [32m+[m
+ static/js/main.js                         |   196 [32m+[m
+ static/js/ml_monitor.js                   |   218 [32m+[m
+ static/js/reports.js                      |   162 [32m+[m
+ templates/base.html                       |   242 [32m+[m
+ templates/dashboard.html                  |   391 [32m+[m
+ templates/index.html                      |   227 [32m+[m
+ templates/live_charts.html                |   153 [32m+[m
+ templates/ml_anomalies.html               |   191 [32m+[m
+ templates/reports.html                    |   167 [32m+[m
+ vehicle_health.db                         |   Bin [31m0[m -> [32m1167360[m bytes
+ 31 files changed, 75671 insertions(+)
